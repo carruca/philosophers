@@ -17,12 +17,12 @@ typedef struct s_diner
 typedef struct s_philo
 {
 	t_diner			*diner;
-	unsigned		number_of_philosophers;
+	unsigned		philosophers_counter;
 	unsigned long	time_to_die;
 	unsigned long	time_to_eat;
 	unsigned long	time_to_sleep;
-	unsigned		number_of_times_each_philosopher_must_eat;
-	unsigned		number_of_forks;
+	unsigned		eat_counter;
+	unsigned		chopsticks_counter;
 	unsigned long	start_time;
 	_Bool			*forks;
 	pthread_mutex_t	*locks;

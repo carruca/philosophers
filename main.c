@@ -6,7 +6,7 @@
 #include "philo.h"
 #include <stdlib.h>
 
-//number_of_philosophers
+//philosophers_counter
 //time_to_die
 //time_to_eat
 //time_to_sleep
@@ -66,76 +66,59 @@ void	*ft_calloc(size_t count, size_t size)
 
 void	print_arg(t_philo *philo)
 {
-	printf("number of philosophers = %u\n", philo->number_of_philosophers);
+	printf("number of philosophers = %u\n", philo->philosophers_counter);
 	printf("time to die = %lu\n", philo->time_to_die);
 	printf("time to eat = %lu\n", philo->time_to_eat);
 	printf("time to sleep = %lu\n", philo->time_to_sleep);
 	printf("number of times each philosopher must eat = %u\n",
-		philo->number_of_times_each_philosopher_must_eat);
-	printf("number of forks = %u\n", philo->number_of_forks);
+		philo->eat_counter);
+	printf("number of forks = %u\n", philo->chopsticks_counter);
 }
 
-void	select_forks(t_diner *diner, t_philo *philo)
+void	assign_chopsticks(unsigned pos, unsigned counter, t_diner *diner, _Bool *forks)
 {
-	unsigned	i;
-
-	i = 0;
-	while (i < philo->number_of_forks)
-	{
-		if (i == philo->number_of_forks - 1)
-			diner[i].fork_right = &philo->forks[0];
-		else
-			diner[i].fork_right = &philo->forks[i];
-		if (i == 0)
-			diner[i].fork_left = &philo->forks[philo->number_of_forks - 1];
-		else
-			diner[i].fork_left = &philo->forks[i - 1];
-		i++;
-	}
+	if (pos == counter - 1)
+		diner->fork_right = &forks[0];
+	else
+		diner->fork_right = &forks[pos];
+	if (pos == 0)
+		diner->fork_left = &forks[counter - 1];
+	else
+		diner->fork_left = &forks[pos - 1];
 }
 
-void	select_locks(t_diner *diner, t_philo *philo)
+void	assign_locks(
+		unsigned pos, unsigned counter, t_diner *diner, pthread_mutex_t *locks)
 {
-	unsigned	i;
-
-	i = 0;
-	while (i < philo->number_of_forks)
-	{
-		if (i == philo->number_of_forks - 1)
-			diner[i].lock_right = &philo->locks[0];
-		else
-			diner[i].lock_right = &philo->locks[i];
-		if (i == 0)
-			diner[i].lock_left = &philo->locks[philo->number_of_forks - 1];
-		else
-			diner[i].lock_left = &philo->locks[i - 1];
-		i++;
-	}
-}
-
-void	select_id(t_diner *diner, t_philo *philo)
-{
-	unsigned	i;
-
-	i = 0;
-	while (i < philo->number_of_philosophers)
-	{
-		diner[i].id = i;
-		diner[i].parent = philo;
-		i++;
-	}
+	if (pos == counter - 1)
+		diner->lock_right = &locks[0];
+	else
+		diner->lock_right = &locks[pos];
+	if (pos == 0)
+		diner->lock_left = &locks[counter - 1];
+	else
+		diner->lock_left = &locks[pos - 1];
 }
 
 t_diner	*create_diner(t_philo *philo)
 {
-	t_diner	*diner;
+	t_diner		*diner;
+	unsigned	pos;
 
-	diner = ft_calloc(philo->number_of_philosophers, sizeof(t_diner));
+	diner = ft_calloc(philo->philosophers_counter, sizeof(t_diner));
 	if (!diner)
 		return (NULL);
-	select_id(diner, philo);
-	select_forks(diner, philo);
-	select_locks(diner, philo);
+	pos = 0;
+	while (pos < philo->philosophers_counter)
+	{
+		diner[pos].id = pos;
+		diner[pos].parent = philo;
+		assign_chopsticks(pos, philo->chopsticks_counter,
+			&diner[pos], philo->forks);
+		assign_locks(pos, philo->chopsticks_counter,
+			&diner[pos], philo->locks);
+		pos++;
+	}
 	return (diner);
 }
 
@@ -149,13 +132,13 @@ t_philo	*get_args(int argc, char **argv)
 		philo = ft_calloc(1, sizeof(t_philo));
 		if (!philo)
 			return (NULL);
-		philo->number_of_philosophers = atoi(argv[1]);
+		philo->philosophers_counter = atoi(argv[1]);
 		philo->time_to_die = atoi(argv[2]);
 		philo->time_to_eat = atoi(argv[3]);
 		philo->time_to_sleep = atoi(argv[4]);
 		if (argc == 6)
-			philo->number_of_times_each_philosopher_must_eat = atoi(argv[5]);
-		philo->number_of_forks = philo->number_of_philosophers;
+			philo->eat_counter = atoi(argv[5]);
+		philo->chopsticks_counter = philo->philosophers_counter;
 		return (philo);
 	}
 	error("Usage: ./philo number_of_philosophers time_to_die time_to_eat time_to_sleep [number_of_times_each_philosopher_must_eat]\n");
@@ -167,7 +150,7 @@ int	create_thread_loop(t_diner *diner, t_philo *philo)
 	unsigned	i;
 
 	i = 0;
-	while (i < philo->number_of_philosophers)
+	while (i < philo->philosophers_counter)
 	{
 		if (pthread_create(&diner[i].thread, NULL, eating, &diner[i]) == -1)
 			return (error("pthread_create error\n"));
@@ -181,7 +164,7 @@ void	join_thread_loop(t_diner *diner)
 	unsigned	i;
 
 	i = 0;
-	while (i < diner->parent->number_of_philosophers)
+	while (i < diner->parent->philosophers_counter)
 	{
 		pthread_join(diner[i].thread, NULL);
 		i++;
@@ -193,7 +176,7 @@ int	mutex_init_loop(t_philo *philo)
 	unsigned	i;
 
 	i = 0;
-	while (i < philo->number_of_forks)
+	while (i < philo->chopsticks_counter)
 	{
 		if (pthread_mutex_init(&philo->locks[i], NULL))
 			return (error("pthread_mutex_init error\n"));
@@ -207,7 +190,7 @@ void	mutex_destroy_loop(t_philo *philo)
 	unsigned	i;
 
 	i = 0;
-	while (i < philo->number_of_forks)
+	while (i < philo->chopsticks_counter)
 	{
 		pthread_mutex_destroy(&philo->locks[i]);
 		i++;
@@ -222,13 +205,12 @@ int	main(int argc, char **argv)
 	philo = get_args(argc, argv);
 	if (!philo)
 		return (1);
-	philo->forks = ft_calloc(philo->number_of_forks, sizeof(_Bool));
+	philo->forks = ft_calloc(philo->chopsticks_counter, sizeof(_Bool));
 	if (!philo->forks)
 		return (1);
-	philo->locks = ft_calloc(philo->number_of_forks, sizeof(pthread_mutex_t));
+	philo->locks = ft_calloc(philo->chopsticks_counter, sizeof(pthread_mutex_t));
 	if (!philo->locks)
 		return (1);
-	philo->forks[0] = 1;
 	print_arg(philo);
 	philo->start_time = get_time();
 	printf("start time = %li\n", philo->start_time);
