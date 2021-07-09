@@ -1,7 +1,19 @@
 NAME = philo
 
 SRC_DIR = ./
-SRC = main.c
+SRC = main.c \
+	  ft_calloc.c \
+	  error.c \
+	  assign_chopsticks.c \
+	  assign_locks.c \
+	  diner_create.c \
+	  get_args.c \
+	  get_msec_since_start.c \
+	  get_time.c \
+	  mutex_destroy_loop.c \
+	  mutex_init_loop.c \
+	  thread_create_loop.c \
+	  thread_join_loop.c
 
 OBJ = $(SRC:.c=.o)
 
@@ -27,7 +39,7 @@ sanitize: COMMON += $(SANITIZE) $(DEBUG)
 sanitize: all
 
 tag:
-	ctags $(SRC)
+	ctags $(SRC) philo.h
 
 clean:
 	$(RM) $(OBJ)
