@@ -6,7 +6,7 @@
 /*   By: tsierra- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/09 16:13:02 by tsierra-          #+#    #+#             */
-/*   Updated: 2021/07/09 17:50:32 by tsierra-         ###   ########.fr       */
+/*   Updated: 2021/07/12 17:54:09 by tsierra-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,14 +14,14 @@
 
 int	thread_create_loop(t_diner *diner, t_philo *philo)
 {
-	unsigned int	pos;
+	unsigned int	id;
 
-	pos = 0;
-	while (pos < philo->philosophers_counter)
+	id = 0;
+	while (id < philo->philosophers_counter)
 	{
-		if (pthread_create(&diner[pos].thread, NULL, diner_life_loop, &diner[pos]) == -1)
+		if (pthread_create(&diner[id].thread, NULL, diner_life_loop, &diner[id]) == -1)
 			return (error("pthread_create error\n"));
-		pos++;
+		id++;
 	}
 	return (0);
 }

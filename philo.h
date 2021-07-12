@@ -6,7 +6,7 @@
 /*   By: tsierra- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/09 16:06:54 by tsierra-          #+#    #+#             */
-/*   Updated: 2021/07/09 17:45:07 by tsierra-         ###   ########.fr       */
+/*   Updated: 2021/07/12 20:56:09 by tsierra-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ typedef struct s_diner
 	_Bool			*fork_left;
 	pthread_mutex_t	*lock_right;
 	pthread_mutex_t	*lock_left;
+	unsigned long	time_to_alive;
 	struct s_philo	*parent;
 }					t_diner;
 
@@ -36,8 +37,11 @@ typedef struct s_philo
 	unsigned int	eat_counter;
 	unsigned int	chopsticks_counter;
 	unsigned long	start_time;
+	_Bool			philosopher_dead;
 	_Bool			*forks;
 	pthread_mutex_t	*locks;
+	pthread_mutex_t	print_mutex;
+	pthread_mutex_t	dead_mutex;
 }					t_philo;
 
 void			*ft_calloc(size_t count, size_t size);
@@ -53,7 +57,7 @@ void			mutex_destroy_loop(t_philo *philo);
 int				thread_create_loop(t_diner *diner, t_philo *philo);
 void			thread_join_loop(t_diner *diner);
 unsigned long	get_time(void);
-unsigned long	get_msec_since_start(unsigned long start_time);
+unsigned int	get_msec_since_start(unsigned long start_time);
 void			*diner_life_loop(void *arg);
 
 #endif

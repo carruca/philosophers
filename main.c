@@ -6,85 +6,106 @@
 #include "philo.h"
 #include <stdlib.h>
 
-//philosophers_counter
-//time_to_die
-//time_to_eat
-//time_to_sleep
-//number_of_times_each_philosopher_must_eat
-//number_of_forks
-
-//eating
-//thinking
-//sleeping
-
-void	eating(t_diner *diner)
+void	print_status(t_diner *diner, char *status)
 {
-	unsigned long	msec;
+	unsigned int	msec;
 
+	pthread_mutex_lock(&diner->parent->print_mutex);
 	msec = get_msec_since_start(diner->parent->start_time);
-	printf("%lu %i is eating\n", msec, diner->id);
-	usleep(diner->parent->time_to_eat * 1000);
+	if (!diner->parent->philosopher_dead)
+		printf("%u %i %s\n", msec, diner->id, status);
+	pthread_mutex_unlock(&diner->parent->print_mutex);
 }
 
-void	thinking(t_diner *diner)
+_Bool	set_chopstick(t_diner *diner, _Bool value)
 {
-	unsigned long	msec;
+	int ret;
 
-	msec = get_msec_since_start(diner->parent->start_time);
-	printf("%lu %i is thinking\n", msec, diner->id);
+	pthread_mutex_lock(diner->lock_left);
+	pthread_mutex_lock(diner->lock_right);
+	if (*diner->fork_right != value && *diner->fork_left != value)
+	{
+		*diner->fork_right = value;
+		*diner->fork_left = value;
+		ret = 1;
+	}
+	else
+		ret = 0;
+	pthread_mutex_unlock(diner->lock_right);
+	pthread_mutex_unlock(diner->lock_left);
+	return (ret);
+}
+
+int	hold_chopsticks(t_diner *diner)
+{
+	if (diner->parent->philosophers_counter > 1)
+	{
+		if (set_chopstick(diner, 1))
+		{
+			print_status(diner, "has taken a fork");
+			print_status(diner, "has taken a fork");
+			return (1);
+		}
+	}
+	return (0);
+}
+
+void	set_dead(t_diner *diner, char *str)
+{
+	pthread_mutex_lock(&diner->parent->dead_mutex);
+	if (!diner->parent->philosopher_dead)
+	{
+		print_status(diner, "died");
+		printf("alive = %lu current = %lu diff = %lu\n", diner->time_to_alive, get_time(), get_time() - diner->time_to_alive);
+		print_status(diner, str);
+	}
+	diner->parent->philosopher_dead = 1;
+	pthread_mutex_unlock(&diner->parent->dead_mutex);
 }
 
 void	sleeping(t_diner *diner)
 {
-	unsigned long	msec;
-
-	msec = get_msec_since_start(diner->parent->start_time);
-	printf("%lu %i is sleeping\n", msec, diner->id);
-	usleep(diner->parent->time_to_sleep * 1000);
-}
-
-void	set_chopstick(pthread_mutex_t *lock, _Bool *chopstick)
-{
-	pthread_mutex_lock(lock);
-	*chopstick = 1;
-	pthread_mutex_unlock(lock);
-}
-
-int	query_chopstick(_Bool *chopstick)
-{
-	if (*chopstick)
-		return (1);
-	return (0);
-}
-
-void	hold_chopsticks(t_diner *diner)
-{
-	int	ret;
-
-	ret = 1;
-	while (ret)
-		ret = query_chopstick(diner->fork_right);
-	set_chopstick(diner->lock_right, diner->fork_right);
-	if (diner->parent->philosophers_counter > 1)
+	print_status(diner, "is sleeping");
+	if (diner->time_to_alive < get_time() + diner->parent->time_to_sleep)
 	{
-		while (ret)
-			ret = query_chopstick(diner->fork_left);
-		set_chopstick(diner->lock_left, diner->fork_left);
+		usleep((get_time() + diner->parent->time_to_sleep - diner->time_to_alive) * 1000);
+		set_dead(diner, "while sleeping");
+		return ;
 	}
+	usleep(diner->parent->time_to_sleep * 1000);
+	print_status(diner, "is thinking");
 }
+
+int	eating(t_diner *diner)
+{
+	diner->time_to_alive = get_time() + diner->parent->time_to_die;
+	print_status(diner, "is eating");
+	if (diner->time_to_alive < get_time() + diner->parent->time_to_eat)
+	{
+		usleep(diner->parent->time_to_die * 1000);
+		set_dead(diner, "while eating");
+		set_chopstick(diner, 0);
+		return (0);
+	}
+	usleep(diner->parent->time_to_eat * 1000);
+	set_chopstick(diner, 0);
+	return (1);
+}
+
 
 void	*diner_life_loop(void *arg)
 {
 	t_diner		*diner;
 
 	diner = arg;
-	while (1)
+	while (!diner->parent->philosopher_dead && diner->time_to_alive > get_time())
 	{
-		hold_chopsticks(diner);
-		eating(diner);
-		sleeping(diner);
-		thinking(diner);
+		if (hold_chopsticks(diner) && eating(diner))
+			sleeping(diner);
+		usleep(1);
 	}
+	set_dead(diner, "while loop");
+	return (NULL);
 }
 
 void	print_arg(t_philo *philo)
@@ -122,6 +143,6 @@ int	main(int argc, char **argv)
 		return (1);
 	mutex_destroy_loop(philo);
 	thread_join_loop(diner);
-	system("leaks philo");
+//	system("leaks philo");
 	return (0);
 }

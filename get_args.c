@@ -6,7 +6,7 @@
 /*   By: tsierra- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/09 16:22:19 by tsierra-          #+#    #+#             */
-/*   Updated: 2021/07/09 17:44:05 by tsierra-         ###   ########.fr       */
+/*   Updated: 2021/07/12 21:00:37 by tsierra-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,6 +30,8 @@ t_philo	*get_args(int argc, char **argv)
 		if (argc == 6)
 			philo->eat_counter = atoi(argv[5]);
 		philo->chopsticks_counter = philo->philosophers_counter;
+		pthread_mutex_init(&philo->print_mutex, NULL);
+		pthread_mutex_init(&philo->dead_mutex, NULL);
 		return (philo);
 	}
 	error("Usage: ./philo number_of_philosophers time_to_die time_to_eat time_to_sleep [number_of_times_each_philosopher_must_eat]\n");
