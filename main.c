@@ -17,15 +17,74 @@
 //thinking
 //sleeping
 
-void	*eating(void *arg)
+void	eating(t_diner *diner)
 {
-	t_diner	*diner;
+	unsigned long	msec;
+
+	msec = get_msec_since_start(diner->parent->start_time);
+	printf("%lu %i is eating\n", msec, diner->id);
+	usleep(diner->parent->time_to_eat * 1000);
+}
+
+void	thinking(t_diner *diner)
+{
+	unsigned long	msec;
+
+	msec = get_msec_since_start(diner->parent->start_time);
+	printf("%lu %i is thinking\n", msec, diner->id);
+}
+
+void	sleeping(t_diner *diner)
+{
+	unsigned long	msec;
+
+	msec = get_msec_since_start(diner->parent->start_time);
+	printf("%lu %i is sleeping\n", msec, diner->id);
+	usleep(diner->parent->time_to_sleep * 1000);
+}
+
+void	set_chopstick(pthread_mutex_t *lock, _Bool *chopstick)
+{
+	pthread_mutex_lock(lock);
+	*chopstick = 1;
+	pthread_mutex_unlock(lock);
+}
+
+int	query_chopstick(_Bool *chopstick)
+{
+	if (*chopstick)
+		return (1);
+	return (0);
+}
+
+void	hold_chopsticks(t_diner *diner)
+{
+	int	ret;
+
+	ret = 1;
+	while (ret)
+		ret = query_chopstick(diner->fork_right);
+	set_chopstick(diner->lock_right, diner->fork_right);
+	if (diner->parent->philosophers_counter > 1)
+	{
+		while (ret)
+			ret = query_chopstick(diner->fork_left);
+		set_chopstick(diner->lock_left, diner->fork_left);
+	}
+}
+
+void	*diner_life_loop(void *arg)
+{
+	t_diner		*diner;
 
 	diner = arg;
-	printf("%i empieza a comer\n", diner->id);
-	usleep(diner->parent->time_to_eat * 1000);
-	printf("%i termina de comer\n", diner->id);
-	return (NULL);
+	while (1)
+	{
+		hold_chopsticks(diner);
+		eating(diner);
+		sleeping(diner);
+		thinking(diner);
+	}
 }
 
 void	print_arg(t_philo *philo)

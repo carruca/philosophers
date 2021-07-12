@@ -54,6 +54,6 @@ int				thread_create_loop(t_diner *diner, t_philo *philo);
 void			thread_join_loop(t_diner *diner);
 unsigned long	get_time(void);
 unsigned long	get_msec_since_start(unsigned long start_time);
-void			*eating(void *arg);
+void			*diner_life_loop(void *arg);
 
 #endif

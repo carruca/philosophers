@@ -19,7 +19,7 @@ int	thread_create_loop(t_diner *diner, t_philo *philo)
 	pos = 0;
 	while (pos < philo->philosophers_counter)
 	{
-		if (pthread_create(&diner[pos].thread, NULL, eating, &diner[pos]) == -1)
+		if (pthread_create(&diner[pos].thread, NULL, diner_life_loop, &diner[pos]) == -1)
 			return (error("pthread_create error\n"));
 		pos++;
 	}
