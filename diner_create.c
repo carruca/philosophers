@@ -16,23 +16,22 @@
 t_diner	*diner_create(t_philo *philo)
 {
 	t_diner			*diner;
-	unsigned int	pos;
+	unsigned int	id;
 
 	diner = ft_calloc(philo->philosophers_counter, sizeof(t_diner));
 	if (!diner)
 		return (NULL);
-	pos = 0;
-	while (pos < philo->philosophers_counter)
+	id = 0;
+	while (id < philo->philosophers_counter)
 	{
-		diner[pos].id = pos;
-		diner[pos].parent = philo;
-		assign_chopsticks(pos, philo->chopsticks_counter,
-			&diner[pos], philo->forks);
-		assign_locks(pos, philo->chopsticks_counter,
-			&diner[pos], philo->locks);
-		diner[pos].time_to_alive = philo->start_time + philo->time_to_die;
-		printf("%lu = time_to_alive\n", diner[pos].time_to_alive);
-		pos++;
+		diner[id].id = id;
+		diner[id].parent = philo;
+		assign_chopsticks(id, philo->chopsticks_counter,
+			&diner[id], philo->forks);
+		assign_locks(id, philo->chopsticks_counter,
+			&diner[id], philo->locks);
+		diner[id].time_to_alive = philo->start_time + philo->time_to_die;
+		id++;
 	}
 	return (diner);
 }

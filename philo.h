@@ -34,7 +34,7 @@ typedef struct s_philo
 	unsigned long	time_to_die;
 	unsigned long	time_to_eat;
 	unsigned long	time_to_sleep;
-	unsigned int	eat_counter;
+	unsigned int	times_must_eat;
 	unsigned int	chopsticks_counter;
 	unsigned long	start_time;
 	_Bool			philosopher_dead;

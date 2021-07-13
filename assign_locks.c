@@ -15,10 +15,7 @@
 void	assign_locks(
 		unsigned pos, unsigned counter, t_diner *diner, pthread_mutex_t *locks)
 {
-	if (pos == counter - 1)
-		diner->lock_right = &locks[0];
-	else
-		diner->lock_right = &locks[pos];
+	diner->lock_right = &locks[pos];
 	if (pos == 0)
 		diner->lock_left = &locks[counter - 1];
 	else

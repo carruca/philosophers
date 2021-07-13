@@ -17,7 +17,7 @@ void	print_status(t_diner *diner, char *status)
 	pthread_mutex_unlock(&diner->parent->print_mutex);
 }
 
-_Bool	set_chopstick(t_diner *diner, _Bool value)
+int	set_chopsticks(t_diner *diner, _Bool value)
 {
 	int ret;
 
@@ -40,7 +40,7 @@ int	hold_chopsticks(t_diner *diner)
 {
 	if (diner->parent->philosophers_counter > 1)
 	{
-		if (set_chopstick(diner, 1))
+		if (set_chopsticks(diner, 1))
 		{
 			print_status(diner, "has taken a fork");
 			print_status(diner, "has taken a fork");
@@ -54,11 +54,7 @@ void	set_dead(t_diner *diner, char *str)
 {
 	pthread_mutex_lock(&diner->parent->dead_mutex);
 	if (!diner->parent->philosopher_dead)
-	{
-		print_status(diner, "died");
-		printf("alive = %lu current = %lu diff = %lu\n", diner->time_to_alive, get_time(), get_time() - diner->time_to_alive);
 		print_status(diner, str);
-	}
 	diner->parent->philosopher_dead = 1;
 	pthread_mutex_unlock(&diner->parent->dead_mutex);
 }
@@ -68,8 +64,8 @@ void	sleeping(t_diner *diner)
 	print_status(diner, "is sleeping");
 	if (diner->time_to_alive < get_time() + diner->parent->time_to_sleep)
 	{
-		usleep((get_time() + diner->parent->time_to_sleep - diner->time_to_alive) * 1000);
-		set_dead(diner, "while sleeping");
+		usleep((diner->time_to_alive - get_time()) * 1000);
+		set_dead(diner, "died while sleeping");
 		return ;
 	}
 	usleep(diner->parent->time_to_sleep * 1000);
@@ -78,17 +74,17 @@ void	sleeping(t_diner *diner)
 
 int	eating(t_diner *diner)
 {
-	diner->time_to_alive = get_time() + diner->parent->time_to_die;
 	print_status(diner, "is eating");
+	diner->time_to_alive = get_time() + diner->parent->time_to_die;
 	if (diner->time_to_alive < get_time() + diner->parent->time_to_eat)
 	{
 		usleep(diner->parent->time_to_die * 1000);
-		set_dead(diner, "while eating");
-		set_chopstick(diner, 0);
+		set_dead(diner, "died while eating");
+		set_chopsticks(diner, 0);
 		return (0);
 	}
 	usleep(diner->parent->time_to_eat * 1000);
-	set_chopstick(diner, 0);
+	set_chopsticks(diner, 0);
 	return (1);
 }
 
@@ -104,7 +100,7 @@ void	*diner_life_loop(void *arg)
 			sleeping(diner);
 		usleep(1);
 	}
-	set_dead(diner, "while loop");
+	set_dead(diner, "died while life loop");
 	return (NULL);
 }
 
@@ -115,7 +111,7 @@ void	print_arg(t_philo *philo)
 	printf("time to eat = %lu\n", philo->time_to_eat);
 	printf("time to sleep = %lu\n", philo->time_to_sleep);
 	printf("number of times each philosopher must eat = %u\n",
-		philo->eat_counter);
+		philo->times_must_eat);
 	printf("number of forks = %u\n", philo->chopsticks_counter);
 }
 
@@ -133,15 +129,15 @@ int	main(int argc, char **argv)
 	philo->locks = ft_calloc(philo->chopsticks_counter, sizeof(pthread_mutex_t));
 	if (!philo->locks)
 		return (1);
-	print_arg(philo);
 	philo->start_time = get_time();
-	printf("start time = %li\n", philo->start_time);
 	diner = diner_create(philo);
 	if (mutex_init_loop(philo))
 		return (1);
 	if (thread_create_loop(diner, philo))
 		return (1);
 	mutex_destroy_loop(philo);
+	pthread_mutex_destroy(&philo->print_mutex);
+	pthread_mutex_destroy(&philo->dead_mutex);
 	thread_join_loop(diner);
 //	system("leaks philo");
 	return (0);

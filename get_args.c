@@ -28,7 +28,7 @@ t_philo	*get_args(int argc, char **argv)
 		philo->time_to_eat = atoi(argv[3]);
 		philo->time_to_sleep = atoi(argv[4]);
 		if (argc == 6)
-			philo->eat_counter = atoi(argv[5]);
+			philo->times_must_eat = atoi(argv[5]);
 		philo->chopsticks_counter = philo->philosophers_counter;
 		pthread_mutex_init(&philo->print_mutex, NULL);
 		pthread_mutex_init(&philo->dead_mutex, NULL);
