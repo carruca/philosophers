@@ -6,7 +6,7 @@
 /*   By: tsierra- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/09 16:06:54 by tsierra-          #+#    #+#             */
-/*   Updated: 2021/07/12 20:56:09 by tsierra-         ###   ########.fr       */
+/*   Updated: 2021/07/13 20:18:09 by tsierra-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 typedef struct s_diner
 {
 	unsigned int	id;
+	unsigned int	times_eat;
 	pthread_t		thread;
 	_Bool			*fork_right;
 	_Bool			*fork_left;
@@ -42,6 +43,7 @@ typedef struct s_philo
 	pthread_mutex_t	*locks;
 	pthread_mutex_t	print_mutex;
 	pthread_mutex_t	dead_mutex;
+	pthread_mutex_t	eat_mutex;
 }					t_philo;
 
 void			*ft_calloc(size_t count, size_t size);

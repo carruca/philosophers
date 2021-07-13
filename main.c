@@ -6,6 +6,15 @@
 #include "philo.h"
 #include <stdlib.h>
 
+void	dsleep(unsigned int time_to_sleep)
+{
+	unsigned long	time_to_stop;
+
+	time_to_stop = get_time() + time_to_sleep;
+	while (get_time() < time_to_stop)
+		usleep(500);
+}
+
 void	print_status(t_diner *diner, char *status)
 {
 	unsigned int	msec;
@@ -64,11 +73,11 @@ void	sleeping(t_diner *diner)
 	print_status(diner, "is sleeping");
 	if (diner->time_to_alive < get_time() + diner->parent->time_to_sleep)
 	{
-		usleep((diner->time_to_alive - get_time()) * 1000);
+		dsleep(diner->time_to_alive - get_time());
 		set_dead(diner, "died while sleeping");
 		return ;
 	}
-	usleep(diner->parent->time_to_sleep * 1000);
+	dsleep(diner->parent->time_to_sleep);
 	print_status(diner, "is thinking");
 }
 
@@ -78,16 +87,15 @@ int	eating(t_diner *diner)
 	diner->time_to_alive = get_time() + diner->parent->time_to_die;
 	if (diner->time_to_alive < get_time() + diner->parent->time_to_eat)
 	{
-		usleep(diner->parent->time_to_die * 1000);
+		dsleep(diner->parent->time_to_die);
 		set_dead(diner, "died while eating");
 		set_chopsticks(diner, 0);
 		return (0);
 	}
-	usleep(diner->parent->time_to_eat * 1000);
+	dsleep(diner->parent->time_to_eat);
 	set_chopsticks(diner, 0);
 	return (1);
 }
-
 
 void	*diner_life_loop(void *arg)
 {
