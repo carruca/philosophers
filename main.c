@@ -119,9 +119,10 @@ int	count_eat(t_diner *diner)
 {
 	if (diner->parent->times_must_eat == diner->times_eat)
 	{
-		printf("%i ya ha llegado al maximo.\n", diner->id);
-		diner->eat_done = 1;
-		return (1);
+		pthread_mutex_lock(&diner->parent->eat_mutex);
+		diner->parent->eat_done++;
+		printf("%i ya ha llegado al maximo (Total = %i).\n", diner->id, diner->parent->eat_done);
+		pthread_mutex_unlock(&diner->parent->eat_mutex);
 	}
 	return (0);
 }
@@ -131,14 +132,15 @@ void	*diner_life_loop(void *arg)
 	t_diner		*diner;
 
 	diner = arg;
-	while (!diner->eat_done && !diner->parent->philosopher_dead
+	while (diner->parent->eat_done != diner->parent->philosophers_counter
+		&& !diner->parent->philosopher_dead
 		&& diner->time_to_alive > get_time())
 	{
 		if (hold_chopsticks(diner) && eating(diner) && !count_eat(diner))
 			sleeping(diner);
 		usleep(1);
 	}
-	if (!diner->eat_done)
+	if (diner->parent->eat_done != diner->parent->philosophers_counter)
 		set_dead(diner, "died while life loop");
 	return (NULL);
 }
@@ -192,6 +194,7 @@ int	main(int argc, char **argv)
 	mutex_destroy_loop(philo);
 	pthread_mutex_destroy(&philo->print_mutex);
 	pthread_mutex_destroy(&philo->dead_mutex);
+	pthread_mutex_destroy(&philo->eat_mutex);
 	free_philo(&philo, &diner);
 	return (0);
 }

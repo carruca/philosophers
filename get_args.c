@@ -34,6 +34,7 @@ t_philo	*get_args(int argc, char **argv)
 		philo->chopsticks_counter = philo->philosophers_counter;
 		pthread_mutex_init(&philo->print_mutex, NULL);
 		pthread_mutex_init(&philo->dead_mutex, NULL);
+		pthread_mutex_init(&philo->eat_mutex, NULL);
 		return (philo);
 	}
 	error("Usage: ./philo number_of_philosophers time_to_die time_to_eat time_to_sleep [number_of_times_each_philosopher_must_eat]\n");

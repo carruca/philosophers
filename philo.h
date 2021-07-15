@@ -20,7 +20,7 @@ typedef struct s_diner
 	unsigned int	id;
 	unsigned int	times_eat;
 	pthread_t		thread;
-	_Bool			eat_done;
+//	_Bool			eat_done;
 	_Bool			*fork_right;
 	_Bool			*fork_left;
 	pthread_mutex_t	*lock_right;
@@ -40,11 +40,13 @@ typedef struct s_philo
 	unsigned int	times_must_eat;
 	unsigned int	chopsticks_counter;
 	unsigned long	start_time;
+	unsigned int	eat_done;
 	_Bool			philosopher_dead;
 	_Bool			*forks;
 	pthread_mutex_t	*locks;
 	pthread_mutex_t	print_mutex;
 	pthread_mutex_t	dead_mutex;
+	pthread_mutex_t	eat_mutex;
 }					t_philo;
 
 void			*ft_calloc(size_t count, size_t size);
