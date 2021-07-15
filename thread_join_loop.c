@@ -14,12 +14,18 @@
 
 void	thread_join_loop(t_diner *diner)
 {
-	unsigned int	pos;
+	unsigned int	id;
 
-	pos = 0;
-	while (pos < diner->parent->philosophers_counter)
+	id = 0;
+	while (id < diner->parent->philosophers_counter)
 	{
-		pthread_join(diner[pos].thread, NULL);
-		pos++;
+		pthread_mutex_lock(&diner->parent->eat_mutex);
+		id++;
+	}
+	id = 0;
+	while (id < diner->parent->philosophers_counter)
+	{
+		pthread_join(diner[id].thread, NULL);
+		id++;
 	}
 }

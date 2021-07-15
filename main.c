@@ -19,8 +19,8 @@ void	print_status(t_diner *diner, char *status)
 {
 	unsigned int	msec;
 
-	pthread_mutex_lock(&diner->parent->print_mutex);
 	msec = get_msec_since_start(diner->parent->start_time);
+	pthread_mutex_lock(&diner->parent->print_mutex);
 	if (!diner->parent->philosopher_dead)
 		printf("%u %i %s\n", msec, diner->id, status);
 	pthread_mutex_unlock(&diner->parent->print_mutex);
@@ -63,8 +63,10 @@ void	set_dead(t_diner *diner, char *str)
 {
 	pthread_mutex_lock(&diner->parent->dead_mutex);
 	if (!diner->parent->philosopher_dead)
+	{
 		print_status(diner, str);
-	diner->parent->philosopher_dead = 1;
+		diner->parent->philosopher_dead = 1;
+	}
 	pthread_mutex_unlock(&diner->parent->dead_mutex);
 }
 
@@ -81,6 +83,8 @@ void	sleeping(t_diner *diner)
 	print_status(diner, "is thinking");
 }
 
+
+
 int	eating(t_diner *diner)
 {
 	print_status(diner, "is eating");
@@ -94,7 +98,19 @@ int	eating(t_diner *diner)
 	}
 	dsleep(diner->parent->time_to_eat);
 	set_chopsticks(diner, 0);
+	diner->times_eat++;
+	printf("%i eat_times = %i\n", diner->id, diner->times_eat);
 	return (1);
+}
+
+int	count_eat(t_diner *diner)
+{
+	if (diner->parent->times_must_eat - 1 == diner->times_eat)
+	{
+		pthread_mutex_unlock(&diner->parent->eat_mutex);
+		return (1);
+	}
+	return (0);
 }
 
 void	*diner_life_loop(void *arg)
@@ -104,7 +120,7 @@ void	*diner_life_loop(void *arg)
 	diner = arg;
 	while (!diner->parent->philosopher_dead && diner->time_to_alive > get_time())
 	{
-		if (hold_chopsticks(diner) && eating(diner))
+		if (hold_chopsticks(diner) && eating(diner) && !count_eat(diner))
 			sleeping(diner);
 		usleep(1);
 	}
@@ -123,11 +139,25 @@ void	print_arg(t_philo *philo)
 	printf("number of forks = %u\n", philo->chopsticks_counter);
 }
 
+void	free_philo(t_philo **philo, t_diner **diner)
+{
+	free(*diner);
+	free((*philo)->locks);
+	free((*philo)->forks);
+	free(*philo);
+}
+
+void	check_leaks(void)
+{
+	system("leaks philo");
+}
+
 int	main(int argc, char **argv)
 {
 	t_philo	*philo;
 	t_diner	*diner;
 
+//	atexit(check_leaks);
 	philo = get_args(argc, argv);
 	if (!philo)
 		return (1);
@@ -143,10 +173,10 @@ int	main(int argc, char **argv)
 		return (1);
 	if (thread_create_loop(diner, philo))
 		return (1);
+	thread_join_loop(diner);
 	mutex_destroy_loop(philo);
 	pthread_mutex_destroy(&philo->print_mutex);
 	pthread_mutex_destroy(&philo->dead_mutex);
-	thread_join_loop(diner);
-//	system("leaks philo");
+	free_philo(&philo, &diner);
 	return (0);
 }
