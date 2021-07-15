@@ -6,7 +6,7 @@
 /*   By: tsierra- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/09 16:26:01 by tsierra-          #+#    #+#             */
-/*   Updated: 2021/07/12 20:40:40 by tsierra-         ###   ########.fr       */
+/*   Updated: 2021/07/15 17:55:27 by tsierra-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ t_diner	*diner_create(t_philo *philo)
 	id = 0;
 	while (id < philo->philosophers_counter)
 	{
-		diner[id].id = id;
+		diner[id].id = id + 1;
 		diner[id].parent = philo;
 		assign_chopsticks(id, philo->chopsticks_counter,
 			&diner[id], philo->forks);

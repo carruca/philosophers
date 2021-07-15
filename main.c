@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: tsierra- <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/07/15 21:09:55 by tsierra-          #+#    #+#             */
+/*   Updated: 2021/07/15 21:29:01 by tsierra-         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include <stdio.h>
 #include <sys/time.h>
 #include <pthread.h>
@@ -99,15 +111,16 @@ int	eating(t_diner *diner)
 	dsleep(diner->parent->time_to_eat);
 	set_chopsticks(diner, 0);
 	diner->times_eat++;
-	printf("%i eat_times = %i\n", diner->id, diner->times_eat);
+	printf("%i has eaten %i times\n", diner->id, diner->times_eat);
 	return (1);
 }
 
 int	count_eat(t_diner *diner)
 {
-	if (diner->parent->times_must_eat - 1 == diner->times_eat)
+	if (diner->parent->times_must_eat == diner->times_eat)
 	{
-		pthread_mutex_unlock(&diner->parent->eat_mutex);
+		printf("%i ya ha llegado al maximo.\n", diner->id);
+		diner->eat_done = 1;
 		return (1);
 	}
 	return (0);
@@ -118,13 +131,15 @@ void	*diner_life_loop(void *arg)
 	t_diner		*diner;
 
 	diner = arg;
-	while (!diner->parent->philosopher_dead && diner->time_to_alive > get_time())
+	while (!diner->eat_done && !diner->parent->philosopher_dead
+		&& diner->time_to_alive > get_time())
 	{
 		if (hold_chopsticks(diner) && eating(diner) && !count_eat(diner))
 			sleeping(diner);
 		usleep(1);
 	}
-	set_dead(diner, "died while life loop");
+	if (!diner->eat_done)
+		set_dead(diner, "died while life loop");
 	return (NULL);
 }
 
@@ -147,7 +162,7 @@ void	free_philo(t_philo **philo, t_diner **diner)
 	free(*philo);
 }
 
-void	check_leaks(void)
+void	leaks_check(void)
 {
 	system("leaks philo");
 }
@@ -157,14 +172,14 @@ int	main(int argc, char **argv)
 	t_philo	*philo;
 	t_diner	*diner;
 
-//	atexit(check_leaks);
 	philo = get_args(argc, argv);
 	if (!philo)
 		return (1);
 	philo->forks = ft_calloc(philo->chopsticks_counter, sizeof(_Bool));
 	if (!philo->forks)
 		return (1);
-	philo->locks = ft_calloc(philo->chopsticks_counter, sizeof(pthread_mutex_t));
+	philo->locks = ft_calloc(philo->chopsticks_counter,
+			sizeof(pthread_mutex_t));
 	if (!philo->locks)
 		return (1);
 	philo->start_time = get_time();
