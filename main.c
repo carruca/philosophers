@@ -95,8 +95,6 @@ void	sleeping(t_diner *diner)
 	print_status(diner, "is thinking");
 }
 
-
-
 int	eating(t_diner *diner)
 {
 	print_status(diner, "is eating");
@@ -121,7 +119,7 @@ int	count_eat(t_diner *diner)
 	{
 		pthread_mutex_lock(&diner->parent->eat_mutex);
 		diner->parent->eat_done++;
-		printf("%i ya ha llegado al maximo (Total = %i).\n", diner->id, diner->parent->eat_done);
+		print_status(diner, "has eaten full times");
 		pthread_mutex_unlock(&diner->parent->eat_mutex);
 	}
 	return (0);
