@@ -57,6 +57,18 @@ int	set_chopsticks(t_diner *diner, _Bool value)
 	return (ret);
 }
 
+void	give_chip_to_right(t_diner *diner)
+{
+	t_diner	*right_diner;
+
+	if (diner->id == diner->parent->philosophers_counter)
+		right_diner = diner - (diner->id - 1);
+	else
+		right_diner = diner + 1;
+	right_diner->chip = diner->chip;
+	diner->chip = NULL;
+}
+
 int	hold_chopsticks(t_diner *diner)
 {
 	if (diner->parent->philosophers_counter > 1)
@@ -65,6 +77,7 @@ int	hold_chopsticks(t_diner *diner)
 		{
 			print_status(diner, "has taken a fork");
 			print_status(diner, "has taken a fork");
+			give_chip_to_right(diner);
 			return (1);
 		}
 	}
@@ -119,10 +132,27 @@ int	count_eat(t_diner *diner)
 	{
 		pthread_mutex_lock(&diner->parent->eat_mutex);
 		diner->parent->eat_done++;
-		print_status(diner, "has eaten full times");
+//		print_status(diner, "has enough to eat");
 		pthread_mutex_unlock(&diner->parent->eat_mutex);
 	}
 	return (0);
+}
+
+void	init_chips(t_diner *diner, t_philo *philo)
+{
+	unsigned int	id;
+	unsigned int	pos;
+
+	id = 0;
+	pos = 0;
+	while (id < philo->philosophers_counter)
+	{
+		if (id % 2 == 0 && pos < philo->philosophers_counter / 2)
+			diner[id].chip = &philo->chips[pos++];
+		else
+			diner[id].chip = NULL;
+		id ++;
+	}
 }
 
 void	*diner_life_loop(void *arg)
@@ -134,7 +164,7 @@ void	*diner_life_loop(void *arg)
 		&& !diner->parent->philosopher_dead
 		&& diner->time_to_alive > get_time())
 	{
-		if (hold_chopsticks(diner) && eating(diner) && !count_eat(diner))
+		if (diner->chip && hold_chopsticks(diner) && eating(diner) && !count_eat(diner))
 			sleeping(diner);
 		usleep(1);
 	}
@@ -159,6 +189,7 @@ void	free_philo(t_philo **philo, t_diner **diner)
 	free(*diner);
 	free((*philo)->locks);
 	free((*philo)->forks);
+	free((*philo)->chips);
 	free(*philo);
 }
 
@@ -181,6 +212,10 @@ int	main(int argc, char **argv)
 	philo->locks = ft_calloc(philo->chopsticks_counter,
 			sizeof(pthread_mutex_t));
 	if (!philo->locks)
+		return (1);
+	philo->chips = ft_calloc(philo->philosophers_counter / 2,
+			sizeof(_Bool));
+	if (!philo->chips)
 		return (1);
 	philo->start_time = get_time();
 	diner = diner_create(philo);

@@ -17,6 +17,7 @@ int	thread_create_loop(t_diner *diner, t_philo *philo)
 	unsigned int	id;
 
 	id = 0;
+	init_chips(diner, philo);
 	while (id < philo->philosophers_counter)
 	{
 		if (pthread_create(&diner[id].thread, NULL, diner_life_loop, &diner[id]) == -1)
