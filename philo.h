@@ -51,10 +51,13 @@ typedef struct s_philo
 	pthread_mutex_t	eat_mutex;
 }					t_philo;
 
+t_philo			*create_philo(int argc, char **argv);
 void			init_chips(t_diner *diner, t_philo *philo);
 void			*ft_calloc(size_t count, size_t size);
+int				ft_strneg(const char *s);
+int				ft_strdigit(char *str);
+int				ft_isdigit(int c);
 int				error(char *msg);
-t_philo			*get_args(int argc, char **argv);
 t_diner			*diner_create(t_philo *philo);
 void			assign_chopsticks(unsigned pos, unsigned counter,
 					t_diner *diner, _Bool *forks);

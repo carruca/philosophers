@@ -203,21 +203,9 @@ int	main(int argc, char **argv)
 	t_philo	*philo;
 	t_diner	*diner;
 
-	philo = get_args(argc, argv);
+	philo = create_philo(argc, argv);
 	if (!philo)
 		return (1);
-	philo->forks = ft_calloc(philo->chopsticks_counter, sizeof(_Bool));
-	if (!philo->forks)
-		return (1);
-	philo->locks = ft_calloc(philo->chopsticks_counter,
-			sizeof(pthread_mutex_t));
-	if (!philo->locks)
-		return (1);
-	philo->chips = ft_calloc(philo->philosophers_counter / 2,
-			sizeof(_Bool));
-	if (!philo->chips)
-		return (1);
-	philo->start_time = get_time();
 	diner = diner_create(philo);
 	if (mutex_init_loop(philo))
 		return (1);

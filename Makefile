@@ -3,11 +3,14 @@ NAME = philo
 SRC_DIR = ./
 SRC = main.c \
 	  ft_calloc.c \
+	  ft_strdigit.c \
+	  ft_isdigit.c \
+	  ft_strneg.c \
 	  error.c \
 	  assign_chopsticks.c \
 	  assign_locks.c \
 	  diner_create.c \
-	  get_args.c \
+	  philo_create.c \
 	  get_msec_since_start.c \
 	  get_time.c \
 	  mutex_destroy_loop.c \
