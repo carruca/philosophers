@@ -6,7 +6,7 @@
 /*   By: tsierra- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/15 21:09:55 by tsierra-          #+#    #+#             */
-/*   Updated: 2021/07/22 19:53:48 by tsierra-         ###   ########.fr       */
+/*   Updated: 2021/07/22 23:45:11 by tsierra-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ int	main(int argc, char **argv)
 		return (1);
 	if (thread_create_loop(diner, philo))
 		return (1);
-	thread_join_loop(diner);
+	thread_join_loop(diner, philo);
 	mutex_destroy_loop(philo);
 	pthread_mutex_destroy(&philo->print_mutex);
 	pthread_mutex_destroy(&philo->dead_mutex);

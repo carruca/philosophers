@@ -6,7 +6,7 @@
 /*   By: tsierra- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/09 16:06:54 by tsierra-          #+#    #+#             */
-/*   Updated: 2021/07/22 20:00:02 by tsierra-         ###   ########.fr       */
+/*   Updated: 2021/07/22 23:46:20 by tsierra-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,7 +72,7 @@ void			assign_locks(unsigned pos, unsigned counter,
 int				mutex_init_loop(t_philo *philo);
 void			mutex_destroy_loop(t_philo *philo);
 int				thread_create_loop(t_diner *diner, t_philo *philo);
-void			thread_join_loop(t_diner *diner);
+void			thread_join_loop(t_diner *diner, t_philo *philo);
 unsigned long	get_time(void);
 unsigned int	get_msec_since_start(unsigned long start_time);
 void			*diner_life_loop(void *arg);
