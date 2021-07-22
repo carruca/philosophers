@@ -1,21 +1,32 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   get_msec_since_start.c                             :+:      :+:    :+:   */
+/*   set_chopsticks.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tsierra- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/07/09 16:19:27 by tsierra-          #+#    #+#             */
-/*   Updated: 2021/07/12 18:08:10 by tsierra-         ###   ########.fr       */
+/*   Created: 2021/07/22 19:04:46 by tsierra-          #+#    #+#             */
+/*   Updated: 2021/07/22 20:09:21 by tsierra-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-unsigned	get_msec_since_start(unsigned long start_time)
+int	set_chopsticks(t_diner *diner, _Bool value)
 {
-	unsigned long	current_time;
+	int	ret;
 
-	current_time = get_time();
-	return (current_time - start_time);
+	pthread_mutex_lock(diner->lock_left);
+	pthread_mutex_lock(diner->lock_right);
+	if (*diner->fork_right != value && *diner->fork_left != value)
+	{
+		*diner->fork_right = value;
+		*diner->fork_left = value;
+		ret = 1;
+	}
+	else
+		ret = 0;
+	pthread_mutex_unlock(diner->lock_right);
+	pthread_mutex_unlock(diner->lock_left);
+	return (ret);
 }

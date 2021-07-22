@@ -1,15 +1,25 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo_create.c                                     :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: tsierra- <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/07/22 17:46:52 by tsierra-          #+#    #+#             */
+/*   Updated: 2021/07/22 20:01:16 by tsierra-         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
-#include <stdlib.h>
-#include <stdio.h>
 
 static void	fill_philo(t_philo *philo, int argc, char **argv)
 {
-	philo->philosophers_counter = atoi(argv[1]);
-	philo->time_to_die = atoi(argv[2]);
-	philo->time_to_eat = atoi(argv[3]);
-	philo->time_to_sleep = atoi(argv[4]);
+	philo->philosophers_counter = ft_atoi(argv[1]);
+	philo->time_to_die = ft_atoi(argv[2]);
+	philo->time_to_eat = ft_atoi(argv[3]);
+	philo->time_to_sleep = ft_atoi(argv[4]);
 	if (argc == 6)
-		philo->times_must_eat = atoi(argv[5]);
+		philo->times_must_eat = ft_atoi(argv[5]);
 	else
 		philo->times_must_eat = -1;
 	philo->chopsticks_counter = philo->philosophers_counter;
