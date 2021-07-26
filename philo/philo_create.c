@@ -6,7 +6,7 @@
 /*   By: tsierra- <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/07/22 17:46:52 by tsierra-          #+#    #+#             */
-/*   Updated: 2021/07/22 20:01:16 by tsierra-         ###   ########.fr       */
+/*   Updated: 2021/07/26 22:29:30 by tsierra-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,8 +20,6 @@ static void	fill_philo(t_philo *philo, int argc, char **argv)
 	philo->time_to_sleep = ft_atoi(argv[4]);
 	if (argc == 6)
 		philo->times_must_eat = ft_atoi(argv[5]);
-	else
-		philo->times_must_eat = -1;
 	philo->chopsticks_counter = philo->philosophers_counter;
 }
 
