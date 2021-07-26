@@ -27,9 +27,6 @@ int	main(int argc, char **argv)
 		return (1);
 	thread_join_loop(diner, philo);
 	mutex_destroy_loop(philo);
-	pthread_mutex_destroy(&philo->print_mutex);
-	pthread_mutex_destroy(&philo->dead_mutex);
-	pthread_mutex_destroy(&philo->eat_mutex);
 	philo_free(&philo, &diner);
 	return (0);
 }

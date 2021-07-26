@@ -22,4 +22,7 @@ void	mutex_destroy_loop(t_philo *philo)
 		pthread_mutex_destroy(&philo->locks[pos]);
 		pos++;
 	}
+	pthread_mutex_destroy(&philo->print_mutex);
+	pthread_mutex_destroy(&philo->dead_mutex);
+	pthread_mutex_destroy(&philo->eat_mutex);
 }
