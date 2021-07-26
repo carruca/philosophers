@@ -1,6 +1,6 @@
 NAME = philo
 
-UTILS_DIR = utils_ft/
+UTILS_DIR = ft_utils/
 UTILS_SRC = ft_calloc.c \
 			ft_strdigit.c \
 			ft_isdigit.c \
